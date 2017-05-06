@@ -1,6 +1,18 @@
-<body style="background-color: black;">
-		<canvas id="myCanvas"></canvas>
-</body>
+<!doctype html>
+<html>
+	<head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Milton Library Assistant</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    </head>
+
+	<body style="background-color: black;">
+			<canvas id="myCanvas"></canvas>
+	</body>
+</html>
 
 
 <style>
@@ -13,11 +25,10 @@
 
 //CONSTANTS
 var blinkWaitTime = 120;
-var eyeXpos = 0;
-var eyeYpos = 0;
 var eyeTextSize = 14;
-var eyeColor = 'white';
+var eyeColor = "#f2e8da";
 var eyeDir = "forward";
+var eyeState = "open";
 
 var eye = {};
 var eyeClosing = {};
@@ -40,7 +51,7 @@ eye["forward"] = `
             .     ....'''',,,;;:cccccclllloooollllccc:c:::;,'..                  
                     .......'',,,,,,,,;;::::ccccc::::;;;,,''...                   
                       ...............''',,,;;;,,''''''......                     
-                           ............................`                    
+                           ............................`;                    
 
 
 
@@ -64,7 +75,7 @@ eyeClosing["forward"] = `
             .     ....'''',,,;;:cccccclllloooollllccc:c:::;,'..                  
                     .......'',,,,,,,,;;::::ccccc::::;;;,,''...                   
                       ...............''',,,;;;,,''''''......                     
-                           ............................`              
+                           ............................`;              
 
 
 
@@ -88,7 +99,7 @@ eye["left"] = `
          ..........''',,,;;;;:::cllllllolllllloolllllcc:::;,'...                 
                 ..........',,,;;;;;;;;:cccccccccc::::;;,,''...                   
                      .........''''''''',,;;;;;,,,'''''......                     
-                           .............................`                
+                           .............................`;                
 
 
 
@@ -112,7 +123,7 @@ eyeClosing["left"] = `
          ..........''',,,;;;;:::cllllllolllllloolllllcc:::;,'...                 
                 ..........',,,;;;;;;;;:cccccccccc::::;;,,''...                   
                      .........''''''''',,;;;;;,,,'''''......                     
-                           .............................`                     
+                           .............................`;                     
 
 
 
@@ -133,7 +144,7 @@ eye["far right"] = `
                   ....'''',,,;;::cccclllllooooooooolccccc:;,''',,,....           
                     ........'',,,,,,;;;:::cccccccccc:;;,,''........              
                       ...............''',,;;;;,,,',,,'........                   
-                           .............................`                  
+                           .............................`;                  
 
 
 
@@ -157,7 +168,7 @@ eyeClosing["far right"] = `
                   ....'''',,,;;::cccclllllooooooooolccccc:;,''',,,....           
                     ........'',,,,,,;;;:::cccccccccc:;;,,''........              
                       ...............''',,;;;;,,,',,,'........                   
-                           .............................`               
+                           .............................`;               
 				   
                                                                                  
                                                                                  
@@ -177,7 +188,7 @@ eye["right"] = `
             .     ....'''',,,;;:cccccclllloooollllccc:c:::;,'..                  
                     .......'',,,,,,,,;;::::ccccc::::;;;,,''...                   
                       ...............''',,,;;;,,''''''......                     
-                           ............................`                       
+                           ............................`;                       
 
 
 
@@ -201,7 +212,7 @@ eyeClosing["right"] = `
             .     ....'''',,,;;:cccccclllloooollllccc:c:::;,'..                  
                     .......'',,,,,,,,;;::::ccccc::::;;;,,''...                   
                       ...............''',,,;;;,,''''''......                     
-                           ............................`                   
+                           ............................`;                   
 
 				   
 
@@ -221,7 +232,7 @@ var eyeShut = `
          .........',,,:ccllllooooxkxxxO0Okk000O0000000O00OOkxdoc,'...            
                  ......',;;::cc::clllloddooxOxdxxkxxxxddollllc:'.                
                       .....'',,,,,,,;;;;;::cllc::ccc::;;,,,'...                  
-                          ..................'''..'''......`                 
+                          ..................'''..'''......`;                
 
 						   
 
@@ -250,7 +261,6 @@ resize();
 
 c.onmousemove = function(evt) {
 	x = evt.clientX;
-	console.log(c.clientX);
 	var before = eyeDir;
 	
 	//Split screen into 4 sections
@@ -265,20 +275,17 @@ c.onmousemove = function(evt) {
 	}
 	
 	if(eyeDir != before) {
-		//beep();
-		openEye();
+		drawAll();
 	}
 };
-
-
 
 function beep() {
 	audio.pause();
 	audio.currentTime = 0;
 	audio.play()
-}
+};
 
-function wrappingText(text,xPos,yPos,textSize) {
+function wrappingText(text,textSize) {
 	var lines = text.split("\n");
 	context.font = textSize + "px monospace";
 	context.fillStyle = eyeColor;
@@ -295,36 +302,51 @@ function wrappingText(text,xPos,yPos,textSize) {
 
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
-}
+};
 
 
 function drawLeftDots() {
 	for (var i = 0; i < 19; i++) {
 		context.fillText(".",10, 10 + i * c.height/19);
 	}
+};
+
+function drawEye() {
+	if(eyeState == "open") {
+		wrappingText(eye[eyeDir],eyeTextSize);
+		
+	} else if (eyeState == "closing") {
+		wrappingText(eyeClosing[eyeDir],eyeTextSize);
+		
+	} else if (eyeState == "closed") {
+		wrappingText(eyeShut,eyeTextSize);
+	}
+}
+
+function drawAll() {
+	clearCanvas();
+	drawLeftDots();
+	drawEye();
 }
 
 function clearCanvas() {
 	context.clearRect(0, 0, c.width, c.height);
-}
+};
 
 function openEye() {
-	clearCanvas();
-	drawLeftDots();
-	wrappingText(eye[eyeDir],eyeXpos,eyeYpos,eyeTextSize);
-}
+	eyeState = "open";
+	drawAll();
+};
 
 function halfEye() {
-	clearCanvas();
-	drawLeftDots();
-	wrappingText(eyeClosing[eyeDir],eyeXpos,eyeYpos,eyeTextSize);
-}
+	eyeState = "closing";
+	drawAll();
+};
 
 function closedEye() {
-	clearCanvas();
-	drawLeftDots();
-	wrappingText(eyeShut,eyeXpos,eyeYpos,eyeTextSize);
-}
+	eyeState = "closed";
+	drawAll();
+};
 
 
 
@@ -333,7 +355,7 @@ async function blink() {
 	sleep(blinkWaitTime).then(() => {
 		blink2();
 	});
-}
+};
 
 async function blink2() {
 	closedEye();
@@ -341,7 +363,7 @@ async function blink2() {
 	sleep(blinkWaitTime+100).then(() => {
 		blink3();
 	});
-}
+};
 
 async function blink3() {
 	halfEye();
@@ -349,13 +371,14 @@ async function blink3() {
 		beep();
 		waitToBlink();
 	});
-}
+};
 
 async function waitToBlink() {
 	openEye();
 	sleep((Math.random() * 40 + 10) * 1000).then(() => {
 		blink();
 	});
-}
+};
+
 blink();
 </script>
