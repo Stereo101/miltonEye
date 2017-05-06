@@ -350,14 +350,16 @@ function closedEye() {
 
 
 
-async function blink() {
+//async function blink() {
+function blink() {
 	halfEye();
 	sleep(blinkWaitTime).then(() => {
 		blink2();
 	});
 };
 
-async function blink2() {
+//async function blink2() {
+function blink2() {
 	closedEye();
 	beep();
 	sleep(blinkWaitTime+100).then(() => {
@@ -365,7 +367,8 @@ async function blink2() {
 	});
 };
 
-async function blink3() {
+//async function blink3() {
+function blink3() {
 	halfEye();
 	sleep(blinkWaitTime).then(() => {
 		beep();
@@ -373,7 +376,8 @@ async function blink3() {
 	});
 };
 
-async function waitToBlink() {
+//async function waitToBlink() {
+function waitToBlink() {
 	openEye();
 	sleep((Math.random() * 40 + 10) * 1000).then(() => {
 		blink();
